@@ -413,7 +413,8 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader><leader>', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      --vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -1000,6 +1001,65 @@ require('lazy').setup({
     config = true,
     keys = { -- load the plugin only when using it's keybinding:
       { '<leader>u', "<cmd>lua require('undotree').toggle()<cr>" },
+    },
+  },
+  {
+    'f-person/git-blame.nvim',
+    -- load the plugin at startup
+    event = 'VeryLazy',
+    -- Because of the keys part, you will be lazy loading this plugin.
+    -- The plugin wil only load once one of the keys is used.
+    -- If you want to load the plugin at startup, add something like event = "VeryLazy",
+    -- or lazy = false. One of both options will work.
+    opts = {
+      -- your configuration comes here
+      -- for example
+      enabled = false, -- if you want to enable the plugin
+      message_template = ' <summary> • <date> • <author> • <<sha>>', -- template for the blame message, check the Message template section for more options
+      date_format = '%m-%d-%Y %H:%M:%S', -- template for the date, check Date format section for more options
+      virtual_text_column = 1, -- virtual text start column, check Start virtual text at column section for more options
+    },
+    keys = {
+      {
+        '<leader>gbu',
+        '<cmd>GitBlameToggle<cr>',
+        desc = 'toggle git blame',
+      },
+      {
+        '<leader>tg',
+        '<cmd>GitBlameToggle<cr>',
+        desc = 'toggle git blame',
+      },
+      {
+        '<leader>gbe',
+        '<cmd>GitBlameEnable<cr>',
+        desc = 'enable git blame',
+      },
+      {
+        '<leader>gbd',
+        '<cmd>GitBlameDisable<cr>',
+        desc = 'disable git blame',
+      },
+      {
+        '<leader>gbh',
+        '<cmd>GitBlameCopySHA<cr>',
+        desc = 'copy line commit SHA',
+      },
+      {
+        '<leader>gbl',
+        '<cmd>GitBlameCopyCommitURL<cr>',
+        desc = 'copy line commit URL',
+      },
+      {
+        '<leader>gbo',
+        '<cmd>GitBlameOpenFileURL<cr>',
+        desc = 'opens file in default browser',
+      },
+      {
+        '<leader>gbc',
+        '<cmd>GitBlameCopyFileURL<cr>',
+        desc = 'copy file url to clipboard',
+      },
     },
   },
 }, {
