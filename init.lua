@@ -994,6 +994,13 @@ require('lazy').setup({
         ft = { 'markdown', 'Avante' },
       },
     },
+    keys = {
+      {
+        '<leader>ta',
+        '<cmd>AvanteToggle<cr>',
+        desc = 'toggle Avante',
+      },
+    },
   },
   {
     'jiaoshijie/undotree',
