@@ -192,6 +192,9 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Keymap for :Ex
+vim.keymap.set('n', '<Leader>e', ':Ex<CR>', { desc = 'File tree in .', noremap = true, silent = true })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -323,7 +326,7 @@ require('lazy').setup({
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>h', group = '[H]arpoon', mode = { 'n', 'v' } },
       },
     },
   },
@@ -385,11 +388,12 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          layout_strategy = 'vertical',
+          --   mappings = {
+          --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+          --   },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -401,6 +405,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'harpoon')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -415,6 +420,12 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       --vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      -- harpoon
+      vim.keymap.set('n', '<leader>hx', require('harpoon.mark').toggle_file, { desc = 'add/remove' })
+      vim.keymap.set('n', '<leader>hn', require('harpoon.ui').nav_next, { desc = 'next' })
+      vim.keymap.set('n', '<leader>hp', require('harpoon.ui').nav_prev, { desc = 'prev' })
+      vim.keymap.set('n', '<leader>hm', require('harpoon.ui').toggle_quick_menu, { desc = 'menu' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -1067,6 +1078,33 @@ require('lazy').setup({
         '<cmd>GitBlameCopyFileURL<cr>',
         desc = 'copy file url to clipboard',
       },
+    },
+  },
+  {
+    'ThePrimeagen/harpoon',
+    global_settings = {
+      -- sets the marks upon calling `toggle` on the ui, instead of require `:w`.
+      save_on_toggle = false,
+
+      -- saves the harpoon file upon every change. disabling is unrecommended.
+      save_on_change = true,
+
+      -- sets harpoon to run the command immediately as it's passed to the terminal when calling `sendCommand`.
+      enter_on_sendcmd = false,
+
+      -- closes any tmux windows harpoon that harpoon creates when you close Neovim.
+      tmux_autoclose_windows = false,
+
+      -- filetypes that you want to prevent from adding to the harpoon list menu.
+      excluded_filetypes = { 'harpoon' },
+
+      -- set marks specific to each git branch inside git repository
+      mark_branch = false,
+
+      -- enable tabline with harpoon marks
+      tabline = false,
+      tabline_prefix = '   ',
+      tabline_suffix = '   ',
     },
   },
 }, {
