@@ -320,13 +320,16 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
+        { '<leader>a', group = '[A]I', mode = { 'n' } },
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
+        { '<leader>g', group = '[G]it', mode = { 'n' } },
+        { '<leader>h', group = '[H]arpoon', mode = { 'n', 'v' } },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
-        { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>h', group = '[H]arpoon', mode = { 'n', 'v' } },
+        { '<leader>u', group = '[U]ndo tree' },
+        { '<leader>w', group = '[W]orkspace' },
       },
     },
   },
@@ -967,6 +970,14 @@ require('lazy').setup({
     version = false, -- set this if you want to always pull the latest change
     opts = {
       -- add any opts here
+      vendors = {
+        deepseek = {
+          __inherited_from = 'openai',
+          api_key_name = 'DEEPSEEK_API_KEY',
+          endpoint = 'https://api.deepseek.com',
+          model = 'deepseek-coder',
+        },
+      },
     },
     -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
     build = 'make',
@@ -1011,6 +1022,9 @@ require('lazy').setup({
         '<cmd>AvanteToggle<cr>',
         desc = 'toggle Avante',
       },
+      { '<leader>ap', '', desc = 'providers' },
+      { '<leader>apa', ':AvanteSwitchProvider claude<CR>', desc = 'switch to Cluade' },
+      { '<leader>apd', ':AvanteSwitchProvider deepseek<CR>', desc = 'switch to Deepseek' },
     },
   },
   {
