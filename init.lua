@@ -233,8 +233,6 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  -- Russian keyabord input source support
-  { 'aveplen/ruscmd.nvim', opts = {} },
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -636,7 +634,13 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         -- pyright = {},
-        rust_analyzer = {},
+        rust_analyzer = {
+          ['rust-analyzer'] = {
+            check = {
+              command = 'clippy',
+            },
+          },
+        },
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -970,6 +974,7 @@ require('lazy').setup({
     version = false, -- set this if you want to always pull the latest change
     opts = {
       -- add any opts here
+      provider = 'deepseek',
       vendors = {
         deepseek = {
           __inherited_from = 'openai',
@@ -1122,25 +1127,25 @@ require('lazy').setup({
     },
   },
 }, {
-  ui = {
-    -- If you are using a Nerd Font: set icons to an empty table which will use the
-    -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-    icons = vim.g.have_nerd_font and {} or {
-      cmd = '⌘',
-      config = '🛠',
-      event = '📅',
-      ft = '📂',
-      init = '⚙',
-      keys = '🗝',
-      plugin = '🔌',
-      runtime = '💻',
-      require = '🌙',
-      source = '📄',
-      start = '🚀',
-      task = '📌',
-      lazy = '💤 ',
-    },
-  },
+  -- ui = {
+  -- If you are using a Nerd Font: set icons to an empty table which will use the
+  -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
+  -- icons = vim.g.have_nerd_font and {} or {
+  --   cmd = '⌘',
+  --   config = '🛠',
+  --   event = '📅',
+  --   ft = '📂',
+  --   init = '⚙',
+  --   keys = '🗝',
+  --   plugin = '🔌',
+  --   runtime = '💻',
+  --   require = '🌙',
+  --   source = '📄',
+  --   start = '🚀',
+  --   task = '📌',
+  --   lazy = '💤 ',
+  -- },
+  -- },
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
