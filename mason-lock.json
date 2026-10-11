@@ -1,0 +1,15 @@
+{
+  "bash-language-server": "5.6.0",
+  "docker-compose-language-service": "1.0.0",
+  "docker-language-server": "v0.20.1",
+  "dockerfile-language-server": "0.15.0",
+  "dotenv-linter": "v4.0.0",
+  "fixjson": "1.1.2",
+  "json-lsp": "4.10.0",
+  "lua-language-server": "3.19.0",
+  "prettier": "3.9.6",
+  "rust-analyzer": "2026-08-03",
+  "stylua": "v2.5.2",
+  "terraform-ls": "v0.39.0",
+  "typescript-language-server": "5.3.0"
+}

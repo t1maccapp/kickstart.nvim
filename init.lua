@@ -1,4 +1,4 @@
--- English language
+-- English languageini
 vim.cmd 'language en_US'
 --[[
 
@@ -411,6 +411,7 @@ require('lazy').setup({
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
+      vim.keymap.set('n', '<leader>st', builtin.git_status, { desc = 'git [S][T]atus' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
@@ -419,7 +420,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+      vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch Recent Jumps' })
       vim.keymap.set('n', '<leader>sl', builtin.lsp_dynamic_workspace_symbols, { desc = '[S]earch [L]SP symbols' })
+      --vim.keymap.set('n', '<leader><leader>', ':Telescope live_grep hidden=true<cr>', { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader><leader>', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       --vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
@@ -428,6 +431,24 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>hn', require('harpoon.ui').nav_next, { desc = 'next' })
       vim.keymap.set('n', '<leader>hp', require('harpoon.ui').nav_prev, { desc = 'prev' })
       vim.keymap.set('n', '<leader>hm', require('harpoon.ui').toggle_quick_menu, { desc = 'menu' })
+
+      -- parrot
+      vim.keymap.set('n', '<leader>ta', '<cmd>PrtChatToggle<cr>')
+      vim.keymap.set('n', '<leader>aa', '<cmd>:PrtChatToggle<cr>')
+      vim.keymap.set('n', '<leader>ar', '<cmd>PrtChatRespond<cr>')
+      vim.keymap.set('n', '<leader>ad', '<cmd>PrtChatDelete<cr>')
+      vim.keymap.set('n', '<leader>as', '<cmd>PrtChatStop<cr>')
+      vim.keymap.set('v', '<leader>ar', ':PrtRewrite<cr>')
+      vim.keymap.set('v', '<leader>ad', ':PrtEdit<cr>')
+      vim.keymap.set('v', '<leader>aa', ':PrtAppend<cr>')
+      vim.keymap.set('v', '<leader>ap', ':PrtPrepend<cr>')
+
+      vim.keymap.set('v', '<leader>ac', ':PrtComplete<cr>')
+      vim.keymap.set('v', '<leader>ae', ':PrtExplain<cr>')
+      vim.keymap.set('v', '<leader>ao', ':PrtOptimize<cr>')
+      vim.keymap.set('v', '<leader>as', ':PrtSpellCheck<cr>')
+      vim.keymap.set('v', '<leader>au', ':PrtUnitTest<cr>')
+      vim.keymap.set('v', '<leader>an', ':PrtCodeConsult<cr>')
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -480,9 +501,6 @@ require('lazy').setup({
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
-
-      -- Allows extra capabilities provided by nvim-cmp
-      'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -619,9 +637,7 @@ require('lazy').setup({
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-
+      local capabilities = require('blink.cmp').get_lsp_capabilities()
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -742,14 +758,15 @@ require('lazy').setup({
       },
     },
   },
-
   { -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
+    'saghen/blink.cmp',
+    event = 'VimEnter',
+    version = '1.*',
     dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
+      -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
+        version = '2.*',
         build = (function()
           -- Build Step is needed for regex support in snippets.
           -- This step is not supported in many windows environments.
@@ -759,104 +776,79 @@ require('lazy').setup({
           end
           return 'make install_jsregexp'
         end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
-        },
+        dependencies = {},
+        opts = {},
       },
-      'saadparwaiz1/cmp_luasnip',
-
-      -- Adds other completion capabilities.
-      --  nvim-cmp does not ship with all sources by default. They are split
-      --  into multiple repos for maintenance purposes.
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-path',
+      'folke/lazydev.nvim',
     },
-    config = function()
-      -- See `:help cmp`
-      local cmp = require 'cmp'
-      local luasnip = require 'luasnip'
-      luasnip.config.setup {}
-
-      cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
-        },
-        completion = { completeopt = 'menu,menuone,noinsert' },
-
-        -- For an understanding of why these mappings were
-        -- chosen, you will need to read `:help ins-completion`
+    --- @module 'blink.cmp'
+    --- @type blink.cmp.Config
+    opts = {
+      keymap = {
+        -- 'default' (recommended) for mappings similar to built-in completions
+        --   <c-y> to accept ([y]es) the completion.
+        --    This will auto-import if your LSP supports it.
+        --    This will expand snippets if the LSP sent a snippet.
+        -- 'super-tab' for tab to accept
+        -- 'enter' for enter to accept
+        -- 'none' for no mappings
+        --
+        -- For an understanding of why the 'default' preset is recommended,
+        -- you will need to read `:help ins-completion`
         --
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
-        mapping = cmp.mapping.preset.insert {
-          -- Select the [n]ext item
-          ['<C-n>'] = cmp.mapping.select_next_item(),
-          -- Select the [p]revious item
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
+        --
+        -- All presets have the following mappings:
+        -- <tab>/<s-tab>: move to right/left of your snippet expansion
+        -- <c-space>: Open menu or open docs if already open
+        -- <c-n>/<c-p> or <up>/<down>: Select next/previous item
+        -- <c-e>: Hide menu
+        -- <c-k>: Toggle signature help
+        --
+        -- See :h blink-cmp-config-keymap for defining your own keymap
+        preset = 'enter',
+        ['<C-k>'] = { 'show', 'show_documentation', 'hide_documentation' },
+        ['<Tab>'] = { 'select_next', 'fallback' },
 
-          -- Scroll the documentation window [b]ack / [f]orward
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<S-Tab>'] = { 'select_prev', 'fallback' },
 
-          -- Accept ([y]es) the completion.
-          --  This will auto-import if your LSP supports it.
-          --  This will expand snippets if the LSP sent a snippet.
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
+        -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
+        --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+      },
 
-          -- If you prefer more traditional completion keymaps,
-          -- you can uncomment the following lines
-          ['<CR>'] = cmp.mapping.confirm { select = true },
-          ['<Tab>'] = cmp.mapping.select_next_item(),
-          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+      appearance = {
+        -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+        -- Adjusts spacing to ensure icons are aligned
+        nerd_font_variant = 'mono',
+      },
 
-          -- Manually trigger a completion from nvim-cmp.
-          --  Generally you don't need this, because nvim-cmp will display
-          --  completions whenever it has completion options available.
-          ['<C-Space>'] = cmp.mapping.complete {},
+      completion = {
+        -- By default, you may press `<c-space>` to show the documentation.
+        -- Optionally, set `auto_show = true` to show the documentation after a delay.
+        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+      },
 
-          -- Think of <c-l> as moving to the right of your snippet expansion.
-          --  So if you have a snippet that's like:
-          --  function $name($args)
-          --    $body
-          --  end
-          --
-          -- <c-l> will move you to the right of each of the expansion locations.
-          -- <c-h> is similar, except moving you backwards.
-          ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            end
-          end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then
-              luasnip.jump(-1)
-            end
-          end, { 'i', 's' }),
-
-          -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-          --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+      sources = {
+        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        providers = {
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
         },
-        sources = {
-          {
-            name = 'lazydev',
-            -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
-            group_index = 0,
-          },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
-        },
-      }
-    end,
+      },
+
+      snippets = { preset = 'luasnip' },
+
+      -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
+      -- which automatically downloads a prebuilt binary when enabled.
+      --
+      -- By default, we use the Lua implementation instead, but you may enable
+      -- the rust implementation via `'prefer_rust_with_warning'`
+      --
+      -- See :h blink-cmp-config-fuzzy for more information
+      fuzzy = { implementation = 'lua' },
+
+      -- Shows a signature help window while you type arguments for a function
+      signature = { enabled = false },
+    },
   },
 
   { -- You can easily change to a different colorscheme.
@@ -970,91 +962,6 @@ require('lazy').setup({
   -- In normal mode type `<space>sh` then write `lazy.nvim-plugin`
   -- you can continue same window with `<space>sr` which resumes last telescope search
   {
-    'yetone/avante.nvim',
-    event = 'VeryLazy',
-    lazy = false,
-    version = false, -- set this if you want to always pull the latest change
-    opts = {
-      -- add any opts here
-      provider = 'claude',
-      web_search_engine = {
-        provider = 'tavily',
-      },
-      -- vendors = {
-      --   deepseek = {
-      --     __inherited_from = 'openai',
-      --     api_key_name = 'DEEPSEEK_API_KEY',
-      --     endpoint = 'https://api.deepseek.com',
-      --     model = 'deepseek-coder',
-      --   },
-      --   deepseek_r = {
-      --     __inherited_from = 'openai',
-      --     api_key_name = 'DEEPSEEK_API_KEY',
-      --     endpoint = 'https://api.deepseek.com',
-      --     model = 'deepseek-reasoner',
-      --   },
-      -- ollama = ollama,
-      -- ollama_v2 = {
-      --   __inherited_from = 'openai',
-      --   api_key_name = '',
-      --   endpoint = 'http://192.168.0.3:8080/v1',
-      --   model = 'qwen2.5-coder-32b-instruct',
-      --   parse_response = parse_response,
-      -- },
-      --ollama_v3 = ollama_v3,
-      -- },
-    },
-    -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-    build = 'make',
-    -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
-    dependencies = {
-      'stevearc/dressing.nvim',
-      'nvim-lua/plenary.nvim',
-      'MunifTanjim/nui.nvim',
-      --- The below dependencies are optional,
-      'hrsh7th/nvim-cmp', -- autocompletion for avante commands and mentions
-      'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
-      'zbirenbaum/copilot.lua', -- for providers='copilot'
-      {
-        -- support for image pasting
-        'HakonHarnes/img-clip.nvim',
-        event = 'VeryLazy',
-        opts = {
-          -- recommended settings
-          default = {
-            embed_image_as_base64 = false,
-            prompt_for_file_name = false,
-            drag_and_drop = {
-              insert_mode = true,
-            },
-            -- required for Windows users
-            use_absolute_path = true,
-          },
-        },
-      },
-      {
-        -- Make sure to set this up properly if you have lazy=true
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { 'markdown', 'Avante' },
-        },
-        ft = { 'markdown', 'Avante' },
-      },
-    },
-    keys = {
-      {
-        '<leader>ta',
-        '<cmd>AvanteToggle<cr>',
-        desc = 'toggle Avante',
-      },
-      { '<leader>ap', '', desc = 'providers' },
-      { '<leader>apa', ':AvanteSwitchProvider claude<CR>', desc = 'switch to Cluade' },
-      { '<leader>apd', ':AvanteSwitchProvider deepseek<CR>', desc = 'switch to Deepseek' },
-      { '<leader>apr', ':AvanteSwitchProvider deepseek_r<CR>', desc = 'switch to Deepseek R' },
-      { '<leader>apo', ':AvanteSwitchProvider ollama<CR>', desc = 'switch to ollama' },
-    },
-  },
-  {
     'jiaoshijie/undotree',
     dependencies = 'nvim-lua/plenary.nvim',
     config = true,
@@ -1164,7 +1071,24 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
     },
     keys = {
-      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+      --{ '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+      {
+        '<leader>lg',
+        function()
+          -- get file name with extension
+          local file = vim.fn.expand '%:t'
+          vim.cmd 'LazyGit'
+
+          -- Wait a bit for LazyGit to load
+          vim.defer_fn(function()
+            -- search for the file, highlight, and exit search mode in lazygit
+            vim.api.nvim_feedkeys('/' .. file, 't', true)
+            vim.api.nvim_input '<CR>'
+            vim.api.nvim_input '<ESC>'
+          end, 150) -- (milliseconds)
+        end,
+        desc = '[g]it',
+      },
     },
     config = function()
       require('telescope').load_extension 'lazygit'
@@ -1178,6 +1102,172 @@ require('lazy').setup({
       { '<leader>oo', '<cmd>OverseerRun<cr>', desc = 'OverseerRun' },
       { '<leader>oc', '<cmd>OverseerRunCmd<cr>', desc = 'OverseerRunCmd' },
     },
+  },
+  {
+    'frankroeder/parrot.nvim',
+    dependencies = { 'ibhagwan/fzf-lua', 'nvim-lua/plenary.nvim' },
+    -- optionally include "folke/noice.nvim" or "rcarriga/nvim-notify" for beautiful notifications
+    config = function()
+      require('parrot').setup {
+        -- Providers must be explicitly set up to make them available.
+        providers = {
+          anthropic = {
+            name = 'anthropic',
+            endpoint = 'https://api.deepseek.com/v1/messages',
+            api_key = os.getenv 'DEEPSEEK_API_KEY',
+            params = {
+              chat = { max_tokens = 16384 },
+              command = { max_tokens = 16384 },
+            },
+            topic = {
+              model = 'deepseek-v4-flash',
+              params = { max_tokens = 32 },
+            },
+            headers = function(self)
+              return {
+                ['Content-Type'] = 'application/json',
+                ['x-api-key'] = self.api_key,
+                ['anthropic-version'] = '2023-06-01',
+              }
+            end,
+            models = {
+              'deepseek-v4-pro',
+            },
+            preprocess_payload = function(payload)
+              for _, message in ipairs(payload.messages) do
+                message.content = message.content:gsub('^%s*(.-)%s*$', '%1')
+              end
+              if payload.messages[1] and payload.messages[1].role == 'system' then
+                -- remove the first message that serves as the system prompt as anthropic
+                -- expects the system prompt to be part of the API call body and not the messages
+                payload.system = payload.messages[1].content
+                table.remove(payload.messages, 1)
+              end
+              return payload
+            end,
+          },
+          -- openai = {
+          --   name = 'openai',
+          --   api_key = os.getenv 'OPENAI_API_KEY',
+          --   endpoint = 'https://api.openai.com/v1/chat/completions',
+          --   topic = {
+          --     model = 'gpt-5-mini',
+          --   },
+          --   models = {
+          --     'gpt-5-mini',
+          --   },
+          -- },
+        },
+        hooks = {
+          Complete = function(prt, params)
+            local template = [[
+        I have the following code from {{filename}}:
+
+        ```{{filetype}}
+        {{filecontent}}
+        ```
+
+        Please look at the following section specifically:
+        ```{{filetype}}
+        {{selection}}
+        ```
+
+        Please finish the code above carefully and logically.
+        Respond just with the snippet of code that should be inserted.
+        ]]
+            local model_obj = prt.get_model 'command'
+            prt.Prompt(params, prt.ui.Target.append, model_obj, nil, template)
+          end,
+          Explain = function(prt, params)
+            local template = [[
+        Your task is to take the code snippet from {{filename}} and explain it with gradually increasing complexity.
+        Break down the code's functionality, purpose, and key components.
+        The goal is to help the reader understand what the code does and how it works.
+
+        ```{{filetype}}
+        {{selection}}
+        ```
+
+        Use the markdown format with codeblocks and inline code.
+        Explanation of the code above:
+        ]]
+            local model = prt.get_model 'command'
+            prt.logger.info('Explaining selection with model: ' .. model.name)
+            prt.Prompt(params, prt.ui.Target.new, model, nil, template)
+          end,
+          Optimize = function(prt, params)
+            local template = [[
+        You are an expert in {{filetype}}.
+        Your task is to analyze the provided {{filetype}} code snippet and
+        suggest improvements to optimize its performance. Identify areas
+        where the code can be made more efficient, faster, or less
+        resource-intensive. Provide specific suggestions for optimization,
+        along with explanations of how these changes can enhance the code's
+        performance. The optimized code should maintain the same functionality
+        as the original code while demonstrating improved efficiency.
+
+        ```{{filetype}}
+        {{selection}}
+        ```
+
+        Optimized code:
+        ]]
+            local model_obj = prt.get_model 'command'
+            prt.logger.info('Optimizing selection with model: ' .. model_obj.name)
+            prt.Prompt(params, prt.ui.Target.new, model_obj, nil, template)
+          end,
+          SpellCheck = function(prt, params)
+            local chat_prompt = [[
+        Your task is to take the text provided and rewrite it into a clear,
+        grammatically correct version while preserving the original meaning
+        as closely as possible. Correct any spelling mistakes, punctuation
+        errors, verb tense issues, word choice problems, and other
+        grammatical mistakes.
+        ]]
+            prt.ChatNew(params, chat_prompt)
+          end,
+          CodeConsult = function(prt, params)
+            local chat_prompt = [[
+          Your task is to analyze the provided {{filetype}} code and suggest
+          improvements to optimize its performance. Identify areas where the
+          code can be made more efficient, faster, or less resource-intensive.
+          Provide specific suggestions for optimization, along with explanations
+          of how these changes can enhance the code's performance. The optimized
+          code should maintain the same functionality as the original code while
+          demonstrating improved efficiency.
+
+          Here is the code
+          ```{{filetype}}
+          {{filecontent}}
+          ```
+        ]]
+            prt.ChatNew(params, chat_prompt)
+          end,
+          UnitTests = function(prt, params)
+            local template = [[
+        I have the following code from {{filename}}:
+
+        ```{{filetype}}
+        {{selection}}
+        ```
+
+        Please respond by writing table driven unit tests for the code above.
+        ]]
+            local model_obj = prt.get_model 'command'
+            prt.logger.info('Creating unit tests for selection with model: ' .. model_obj.name)
+            prt.Prompt(params, prt.ui.Target.enew, model_obj, nil, template)
+          end,
+        },
+      }
+    end,
+  },
+  {
+    'zapling/mason-lock.nvim',
+    init = function()
+      require('mason-lock').setup {
+        lockfile_path = vim.fn.stdpath 'config' .. '/mason-lock.json', -- (default)
+      }
+    end,
   },
 }, {
   -- ui = {
